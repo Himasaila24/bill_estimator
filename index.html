@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electricity Bill Estimator - Java Micro-Project</title>
+  <meta name="description" content="College Java Micro-Project: Modern Responsive Electricity Bill Estimator powered by Core Java HttpServer">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">
+          <svg class="bolt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Electricity Bill Estimator</h1>
+          <p class="brand-subtitle">College Java Micro-Project &bull; Core Java HTTP Server</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-pill" id="backendStatusPill" title="Server Status">
+          <span class="status-indicator" id="statusIndicator"></span>
+          <span id="backendStatusText">Checking Java Server...</span>
+        </div>
+        <a href="#about-project" class="nav-link">About Project</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- Hero / Announcement Banner -->
+    <section class="hero-banner">
+      <div class="banner-content">
+        <div class="badge-tag">Academic Demo &bull; Core Java Backend</div>
+        <h2>Accurate Progressive Tariff Calculation</h2>
+        <p>Calculate progressive electricity consumption charges instantly. Inputs are validated and processed in real time by the standalone Core Java backend.</p>
+      </div>
+      <div class="quick-presets">
+        <span class="presets-label">Quick Test Presets (Slabs):</span>
+        <div class="preset-buttons">
+          <button type="button" class="btn-preset" data-units="50" title="Test 50 Units (₹100)">50 Units (₹100)</button>
+          <button type="button" class="btn-preset" data-units="100" title="Test 100 Units (₹200)">100 Units (₹200)</button>
+          <button type="button" class="btn-preset" data-units="150" title="Test 150 Units (₹350)">150 Units (₹350)</button>
+          <button type="button" class="btn-preset" data-units="200" title="Test 200 Units (₹500)">200 Units (₹500)</button>
+          <button type="button" class="btn-preset" data-units="250" title="Test 250 Units (₹750)">250 Units (₹750)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Grid: Calculator & Slabs on Left, Results on Right -->
+    <div class="dashboard-grid">
+
+      <!-- Left Column: Input Form + Tariff Legend -->
+      <div class="dashboard-col left-col">
+
+        <!-- Calculator Card -->
+        <section class="card calculator-card" aria-labelledby="calc-heading">
+          <div class="card-header">
+            <div class="card-header-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                <line x1="8" y1="6" x2="16" y2="6"></line>
+                <line x1="16" y1="14" x2="16" y2="14"></line>
+                <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 id="calc-heading" class="card-title">Bill Calculator</h2>
+              <p class="card-description">Enter consumer details and meter readings</p>
+            </div>
+          </div>
+
+          <!-- Alert Notification Area -->
+          <div id="formAlert" class="alert-box hidden" role="alert">
+            <div class="alert-icon" id="alertIcon"></div>
+            <div class="alert-message" id="alertMessage"></div>
+          </div>
+
+          <form id="billForm" novalidate>
+            <!-- Consumer Name -->
+            <div class="form-group">
+              <label for="consumerName" class="form-label">
+                Consumer Name <span class="required-star">*</span>
+              </label>
+              <div class="input-wrapper">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <input 
+                  type="text" 
+                  id="consumerName" 
+                  name="consumerName" 
+                  class="form-control" 
+                  placeholder="e.g. Rahul Sharma" 
+                  required
+                  autocomplete="name"
+                >
+              </div>
+              <span class="field-error" id="nameError"></span>
+            </div>
+
+            <!-- Consumer / Meter Number & Billing Period Grid -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="consumerNumber" class="form-label">
+                  Consumer / Meter No. <span class="optional-tag">(Optional)</span>
+                </label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <line x1="6" y1="8" x2="10" y2="8"></line>
+                    <line x1="6" y1="12" x2="18" y2="12"></line>
+                    <line x1="6" y1="16" x2="14" y2="16"></line>
+                  </svg>
+                  <input 
+                    type="text" 
+                    id="consumerNumber" 
+                    name="consumerNumber" 
+                    class="form-control" 
+                    placeholder="e.g. CON-88421"
+                  >
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="billingPeriod" class="form-label">
+                  Billing Period
+                </label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <select id="billingPeriod" name="billingPeriod" class="form-control">
+                    <option value="October 2026">October 2026 (Current)</option>
+                    <option value="September 2026">September 2026</option>
+                    <option value="August 2026">August 2026</option>
+                    <option value="July 2026">July 2026</option>
+                    <option value="June 2026">June 2026</option>
+                    <option value="May 2026">May 2026</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Previous and Current Meter Readings Grid -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="previousReading" class="form-label">
+                  Previous Reading (kWh) <span class="required-star">*</span>
+                </label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <input 
+                    type="number" 
+                    id="previousReading" 
+                    name="previousReading" 
+                    class="form-control" 
+                    placeholder="0" 
+                    min="0" 
+                    step="any" 
+                    required
+                  >
+                </div>
+                <span class="field-error" id="prevError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="currentReading" class="form-label">
+                  Current Reading (kWh) <span class="required-star">*</span>
+                </label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  <input 
+                    type="number" 
+                    id="currentReading" 
+                    name="currentReading" 
+                    class="form-control" 
+                    placeholder="0" 
+                    min="0" 
+                    step="any" 
+                    required
+                  >
+                </div>
+                <span class="field-error" id="currError"></span>
+              </div>
+            </div>
+
+            <!-- Dynamic Live Consumption Computation Preview -->
+            <div class="live-preview-box" id="livePreviewBox">
+              <div class="live-formula">
+                <span class="formula-label">Units Consumed</span>
+                <span class="formula-math">= Current (<span id="previewCurr">-</span>) − Previous (<span id="previewPrev">-</span>)</span>
+              </div>
+              <div class="live-result">
+                <span id="previewUnits">0</span> <small>kWh</small>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="submit" id="calculateBtn" class="btn btn-primary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span id="btnText">Calculate Bill</span>
+                <div class="spinner hidden" id="btnSpinner"></div>
+              </button>
+
+              <button type="button" id="resetBtn" class="btn btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+                <span>Reset</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Progressive Tariff Slab Legend Card -->
+        <section class="card tariff-card">
+          <div class="card-header">
+            <div class="card-header-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 class="card-title">Sample Progressive Tariff Schedule</h3>
+              <p class="card-description">Demonstration progressive billing slabs</p>
+            </div>
+          </div>
+
+          <div class="tariff-table-wrapper">
+            <table class="tariff-table">
+              <thead>
+                <tr>
+                  <th>Slab Tier</th>
+                  <th>Consumption Range</th>
+                  <th>Tariff Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="slab-badge slab-1">Tier 1</span></td>
+                  <td>First 100 units (1 – 100)</td>
+                  <td><strong class="rate-highlight">₹2.00</strong> / unit</td>
+                </tr>
+                <tr>
+                  <td><span class="slab-badge slab-2">Tier 2</span></td>
+                  <td>Next 100 units (101 – 200)</td>
+                  <td><strong class="rate-highlight">₹3.00</strong> / unit</td>
+                </tr>
+                <tr>
+                  <td><span class="slab-badge slab-3">Tier 3</span></td>
+                  <td>Units above 200 (> 200)</td>
+                  <td><strong class="rate-highlight">₹5.00</strong> / unit</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tariff-disclaimer">
+            <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span><strong>Disclaimer:</strong> Rates shown above are sample rates specified for college demonstration and do not reflect official government utility tariffs.</span>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Column: Results Card & Receipt -->
+      <div class="dashboard-col right-col">
+
+        <!-- Result Placeholder (Before Calculation) -->
+        <section class="card empty-state-card" id="emptyResultCard">
+          <div class="empty-state-content">
+            <div class="pulse-icon-ring">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <h3>No Bill Calculated Yet</h3>
+            <p>Enter the previous and current meter readings on the left, or click one of the quick test presets above to calculate the bill with the Java backend.</p>
+            <div class="hint-pill">
+              ⚡ Calculated via Core Java <code>POST /api/calculate</code>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bill Breakdown Card (Visible After Calculation) -->
+        <section class="card result-card hidden" id="resultCard" aria-labelledby="breakdown-heading">
+          <div class="result-banner">
+            <div class="banner-top">
+              <span class="pill-bill-id" id="resBillId">BILL-20261018-0000</span>
+              <span class="pill-calc-time" id="resGeneratedAt">2026-10-18 00:00:00</span>
+            </div>
+            <div class="banner-main">
+              <span class="total-label">Final Estimated Bill</span>
+              <div class="total-amount-display">
+                <span class="currency-symbol">₹</span>
+                <span class="amount-number" id="resTotalBill">0.00</span>
+              </div>
+              <div class="units-chip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>Total Consumption: <strong id="resUnitsConsumed">0</strong> kWh</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Consumer Summary Details -->
+          <div class="consumer-summary-grid">
+            <div class="summary-item">
+              <span class="summary-key">Consumer Name</span>
+              <span class="summary-val" id="resConsumerName">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-key">Consumer / Meter No.</span>
+              <span class="summary-val" id="resConsumerNumber">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-key">Billing Period</span>
+              <span class="summary-val" id="resBillingPeriod">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-key">Meter Readings</span>
+              <span class="summary-val font-mono"><span id="resPrevReading">0</span> &rarr; <span id="resCurrReading">0</span></span>
+            </div>
+          </div>
+
+          <!-- Consumption Slabs Visual Progress Bar -->
+          <div class="slab-progress-container">
+            <div class="progress-labels">
+              <span>Tariff Slab Distribution</span>
+              <span id="slabDistributionLabel">100% accounted</span>
+            </div>
+            <div class="slab-progress-bar">
+              <div class="bar-segment bar-slab-1" id="barSlab1" style="width: 0%" title="Slab 1"></div>
+              <div class="bar-segment bar-slab-2" id="barSlab2" style="width: 0%" title="Slab 2"></div>
+              <div class="bar-segment bar-slab-3" id="barSlab3" style="width: 0%" title="Slab 3"></div>
+            </div>
+            <div class="progress-legend">
+              <span><span class="dot dot-1"></span> Slab 1 (₹2/u)</span>
+              <span><span class="dot dot-2"></span> Slab 2 (₹3/u)</span>
+              <span><span class="dot dot-3"></span> Slab 3 (₹5/u)</span>
+            </div>
+          </div>
+
+          <!-- Itemized Slab Breakdown Table -->
+          <div class="breakdown-section">
+            <h4 class="section-title">Itemized Energy Charge Breakdown</h4>
+            <div class="breakdown-table-wrapper">
+              <table class="breakdown-table">
+                <thead>
+                  <tr>
+                    <th>Tariff Slab</th>
+                    <th>Units</th>
+                    <th>Rate</th>
+                    <th class="text-right">Charge</th>
+                  </tr>
+                </thead>
+                <tbody id="slabBreakdownBody">
+                  <!-- Dynamically populated from Java JSON response -->
+                </tbody>
+                <tfoot>
+                  <tr class="subtotal-row">
+                    <td colspan="3">Total Energy Charge</td>
+                    <td class="text-right font-bold" id="resEnergyCharge">₹0.00</td>
+                  </tr>
+                  <tr class="grand-total-row">
+                    <td colspan="3">Total Estimated Amount Payable</td>
+                    <td class="text-right font-bold text-green" id="resGrandTotal">₹0.00</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Result Actions: Print / Generate Receipt -->
+          <div class="result-actions">
+            <button type="button" class="btn btn-receipt" id="viewReceiptBtn">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>View &amp; Print Official Receipt</span>
+            </button>
+            <button type="button" class="btn btn-print-direct" id="directPrintBtn">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              <span>Quick Print</span>
+            </button>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+    <!-- College Project Information & Architecture Section -->
+    <section class="card project-info-card" id="about-project">
+      <div class="card-header">
+        <div class="card-header-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="card-title">College Java Micro-Project Overview</h3>
+          <p class="card-description">Architecture, technical specifications, and key learning concepts</p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <h4>1. Client-Server Architecture</h4>
+          <p>The application follows a clean REST architecture. The HTML5/CSS3/JavaScript frontend communicates via asynchronous <code>fetch()</code> requests with a lightweight Java HTTP server built using <code>com.sun.net.httpserver.HttpServer</code>.</p>
+        </div>
+        <div class="info-box">
+          <h4>2. Zero External Dependencies</h4>
+          <p>Engineered strictly with Core Java (JDK 21/17). No external frameworks like Spring Boot or third-party JSON libraries (Jackson/Gson) are required, making it easy to explain in college viva reviews.</p>
+        </div>
+        <div class="info-box">
+          <h4>3. Dual-Layer Validation</h4>
+          <p>User inputs (empty fields, non-numeric values, negative numbers, and current readings smaller than previous readings) are verified instantly in the client and strictly validated in Java with standard HTTP status codes (<code>200</code>, <code>400</code>, <code>405</code>, <code>500</code>).</p>
+        </div>
+        <div class="info-box">
+          <h4>4. Progressive Slab Algorithm</h4>
+          <p>Units are partitioned progressively into tiered brackets: Tier 1 (1–100 @ ₹2), Tier 2 (101–200 @ ₹3), and Tier 3 (>200 @ ₹5), correctly calculating cumulative energy charges.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Printable Official Electricity Receipt Modal -->
+  <div class="modal-overlay hidden" id="receiptModal" role="dialog" aria-modal="true" aria-labelledby="receiptModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header-actions no-print">
+        <h3 id="receiptModalTitle">Electricity Receipt Preview</h3>
+        <div class="modal-btns">
+          <button type="button" class="btn btn-primary btn-sm" id="modalPrintBtn">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Print / Save as PDF
+          </button>
+          <button type="button" class="btn btn-close" id="closeModalBtn" aria-label="Close Modal">&times;</button>
+        </div>
+      </div>
+
+      <!-- Actual Official Receipt (This is what prints) -->
+      <div class="receipt-paper" id="printableReceipt">
+        
+        <!-- Receipt Top Header -->
+        <div class="receipt-header">
+          <div class="receipt-board-info">
+            <div class="receipt-logo">⚡</div>
+            <div>
+              <h2 class="receipt-org-name">CITY ELECTRICITY DISTRIBUTION BOARD</h2>
+              <p class="receipt-org-sub">State Power Distribution Corporation Ltd. (Demonstration Utility)</p>
+              <p class="receipt-subtext">College Java Micro-Project &bull; Core Java HTTP Server</p>
+            </div>
+          </div>
+          <div class="receipt-invoice-meta">
+            <div class="receipt-badge">ESTIMATED BILL</div>
+            <div class="invoice-number font-mono" id="rcptBillId">BILL-20261018-0000</div>
+            <div class="invoice-date">Date: <span id="rcptDate">18-Oct-2026</span></div>
+          </div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <!-- Consumer & Meter Details Grid -->
+        <div class="receipt-details-grid">
+          <div class="rcpt-group">
+            <div class="rcpt-label">Consumer Name</div>
+            <div class="rcpt-val font-bold" id="rcptConsumerName">Rahul Sharma</div>
+          </div>
+          <div class="rcpt-group">
+            <div class="rcpt-label">Consumer / Meter No.</div>
+            <div class="rcpt-val font-mono" id="rcptConsumerNumber">CON-88421</div>
+          </div>
+          <div class="rcpt-group">
+            <div class="rcpt-label">Billing Period</div>
+            <div class="rcpt-val" id="rcptPeriod">October 2026</div>
+          </div>
+          <div class="rcpt-group">
+            <div class="rcpt-label">Connection Category</div>
+            <div class="rcpt-val">Domestic (Single Phase LT)</div>
+          </div>
+        </div>
+
+        <!-- Meter Reading Sub-table -->
+        <div class="receipt-readings-box">
+          <div class="reading-col">
+            <span class="reading-label">Previous Reading</span>
+            <span class="reading-num font-mono" id="rcptPrev">0.0</span>
+            <span class="reading-unit">kWh</span>
+          </div>
+          <div class="reading-arrow">&minus;</div>
+          <div class="reading-col">
+            <span class="reading-label">Current Reading</span>
+            <span class="reading-num font-mono" id="rcptCurr">0.0</span>
+            <span class="reading-unit">kWh</span>
+          </div>
+          <div class="reading-arrow">&equals;</div>
+          <div class="reading-col highlight-col">
+            <span class="reading-label">Net Units Consumed</span>
+            <span class="reading-num font-bold font-mono" id="rcptUnits">0.0</span>
+            <span class="reading-unit">kWh (Units)</span>
+          </div>
+        </div>
+
+        <!-- Itemized Tariff Charges Table -->
+        <table class="receipt-table">
+          <thead>
+            <tr>
+              <th style="width: 45%;">Tariff Slab Description</th>
+              <th style="width: 20%;" class="text-center">Units in Slab</th>
+              <th style="width: 15%;" class="text-right">Rate</th>
+              <th style="width: 20%;" class="text-right">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="rcptTableBody">
+            <!-- Dynamically populated from Java calculation -->
+          </tbody>
+          <tfoot>
+            <tr class="rcpt-subtotal">
+              <td colspan="3" class="text-right">Total Energy Charges:</td>
+              <td class="text-right font-mono font-bold" id="rcptSubtotal">₹0.00</td>
+            </tr>
+            <tr class="rcpt-grand-total">
+              <td colspan="2">
+                <span class="rcpt-words-label">Estimated Net Payable:</span>
+              </td>
+              <td colspan="2" class="text-right">
+                <span class="rcpt-final-amount font-mono" id="rcptTotal">₹0.00</span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- Receipt Footer Disclaimer & Signature -->
+        <div class="receipt-footer">
+          <div class="rcpt-disclaimer-box">
+            <strong>ACADEMIC DISCLAIMER:</strong> This is a computer-generated electricity bill estimate produced by a Core Java micro-project application. Sample tariff slabs (₹2, ₹3, ₹5) are used for academic and demonstration purposes. This document is not an official electricity board invoice.
+          </div>
+          <div class="rcpt-sign-box">
+            <div class="sign-line"></div>
+            <p class="sign-title">Authorized System Generated</p>
+            <p class="sign-org">City Electricity Board (Demo)</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer no-print">
+    <div class="footer-container">
+      <p>&copy; 2026 <strong>Electricity Bill Estimator</strong> &bull; College Java Micro-Project.</p>
+      <p class="footer-tech">Engineered with Core Java (<code>com.sun.net.httpserver</code>) &bull; HTML5 &bull; CSS3 &bull; JavaScript</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
