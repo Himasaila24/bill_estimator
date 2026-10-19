@@ -12,13 +12,19 @@ where javac >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     if exist "C:\Program Files\JetBrains\PyCharm Community Edition 2025.2.5\jbr\bin\javac.exe" (
         set "PATH=C:\Program Files\JetBrains\PyCharm Community Edition 2025.2.5\jbr\bin;%PATH%"
-    ) else if exist "%JAVA_HOME%\bin\javac.exe" (
-        set "PATH=%JAVA_HOME%\bin;%PATH%"
     ) else (
-        echo [ERROR] JDK (javac) not found. Please ensure Java JDK is installed.
-        pause
-        exit /b 1
+        if defined JAVA_HOME (
+            if exist "%JAVA_HOME%\bin\javac.exe" (
+                set "PATH=%JAVA_HOME%\bin;%PATH%"
+            )
+        )
     )
+)
+where javac >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] JDK [javac] not found. Please ensure Java JDK is installed.
+    pause
+    exit /b 1
 )
 
 echo [1/3] Compiling ElectricityBillServer.java...
@@ -32,7 +38,7 @@ echo [SUCCESS] Compilation successful!
 echo.
 
 echo [2/3] Opening web application in default browser...
-timeout /t 1 >nul
+ping 127.0.0.1 -n 2 >nul
 start http://localhost:8080
 echo.
 
